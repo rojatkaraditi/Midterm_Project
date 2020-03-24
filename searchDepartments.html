@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en" style="height: 100%; margin: 0; padding: 0;">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body style="height: 100%; margin: 0; padding: 0;">
+        <nav style="float: left;background-color: beige; margin-right: 2%; height: 100%; padding: 1%;">
+                <a href="index.html">Home</a><br><br>
+                <a href="searchStudents.html">Search Students</a><br><br>
+                <a href="searchStudentCourses.html">Search Student Courses</a><br><br>
+                <a href="createStudent.html">Add Student</a><br><br>
+                <a href="createStudentCourses.html">Add Student Course</a><br><br>
+                <a href="updateStudent.html">Update Student</a><br><br>
+                <a href="updateStudentGrade.html">Update Student Grade</a><br><br>
+                <a href="removeStudent.html">Remove Student</a><br><br>
+                <a href="removeStudentCourse.html">Remove Student course</a><br><br>
+                <a href="searchProfessors.html">Search Professors</a><br><br>
+                <a href="searchProfessorCourses.html">Search Professor Courses</a><br><br>
+                <a href="searchDepartments.html">Search Departments</a><br><br>
+                <a href="searchCourses.html">Search Courses</a><br><br>
+        </nav>
+        <h2>Department search:</h2>
+        <b>Search Filters:</b>
+        <form action="" method="get" id = "form">
+            Department ID: 
+            <input type="number" id="departmentId">
+            Department Name:
+            <input type="text" id="departmentName"><br><br>
+            <input type="submit" value="Search"><br><br>
+        </form>
+        <div id ="departments">
+    
+        </div>
+
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.2/axios.min.js" integrity="sha256-T/f7Sju1ZfNNfBh7skWn0idlCBcI3RwdLSS4/I7NQKQ=" crossorigin="anonymous"></script>
+        <script>
+            $(document).ready(()=>{
+                $('#form').submit((e)=>{
+                    e.preventDefault();
+                    var queryString = "";
+                    if($('#departmentId').val()){
+                        queryString  ="?id="+$('#departmentId').val();
+                    }
+                    if($('#departmentName').val()){
+                        if(queryString){
+                            queryString = queryString.concat('&departmentName=',$('#departmentName').val());
+                        }
+                        else{
+                            queryString  ="?departmentName="+$('#departmentName').val();
+                        }
+                    }
+
+                    callApi(queryString).then(function(response){
+                        if(response.status!=200){
+                            var errors = "<b>An error has occured</b><br>errors:<br>";
+                            if(response.data.error && response.data.error!=undefined){
+                                    response.data.error.forEach(err=>{
+                                    errors+=err.value+" : "+err.msg;
+                                    errors+="<br>";
+                                });
+                            }
+                            $('#departments').html(errors);
+                        }
+                        else{
+                            if(response.data.department && response.data.department.length>0){
+                                var tableHtml = "<table border=\"1\"><tr><th>Department ID</th><th>Department Name</th></tr>";
+                                var dept = response.data.department;
+                                dept.forEach(department=>{
+                                    tableHtml+=("<tr><td>"+department.departmentId+"</td><td>"+department.departmentName+"</td></tr>");
+                                });
+                                tableHtml+=("</table>");
+                                $('#departments').html(tableHtml);
+                            }
+                            else{
+                                $('#departments').html("No departments found which match search criteria<br>");
+                            }
+                        }
+                    });
+                });
+            });
+            function callApi(val){
+                return new Promise(function(resolve,reject){
+                    axios.get('http://64.225.24.123:3000/api/v1/departments'+val)
+                .then(response =>{
+                        resolve(response);
+                }).catch(error=>{
+                    resolve(error.response);
+                });
+                })
+            }
+        </script>
+    
+</body>
+</html>

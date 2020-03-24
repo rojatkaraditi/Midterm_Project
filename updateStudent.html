@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en" style="height: 100%; margin: 0; padding: 0;">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <body style="height: 100%; margin: 0; padding: 0;">
+            <nav style="float: left;background-color: beige; margin-right: 2%; height: 100%; padding: 1%;">
+                    <a href="index.html">Home</a><br><br>
+                    <a href="searchStudents.html">Search Students</a><br><br>
+                    <a href="searchStudentCourses.html">Search Student Courses</a><br><br>
+                    <a href="createStudent.html">Add Student</a><br><br>
+                    <a href="createStudentCourses.html">Add Student Course</a><br><br>
+                    <a href="updateStudent.html">Update Student</a><br><br>
+                    <a href="updateStudentGrade.html">Update Student Grade</a><br><br>
+                    <a href="removeStudent.html">Remove Student</a><br><br>
+                    <a href="removeStudentCourse.html">Remove Student course</a><br><br>
+                    <a href="searchProfessors.html">Search Professors</a><br><br>
+                    <a href="searchProfessorCourses.html">Search Professor Courses</a><br><br>
+                    <a href="searchDepartments.html">Search Departments</a><br><br>
+                    <a href="searchCourses.html">Search Courses</a><br><br>
+            </nav>
+    <div>
+        <h1>Update Student Record</h1>
+        <form id = "form">
+            Student ID:<br>
+            <input type="number" id="studentId" required><br><br>
+            <button type="button" id="searchStudent">Search Student</button><br><br>
+            <div id ="updateData" hidden>
+                    Department ID:<br>
+                    <input type="number" id="departmentId" required><br>
+                    First Name:<br>
+                    <input type="text" id="firstName" required><br>
+                    Last Name:<br>
+                    <input type="text" id="lastName" required><br>
+                    Date of Birth:<br>
+                    <input type="text" id="dateOfBirth" placeholder="yyyy-mm-dd" required><br>
+                    Phone number:<br>
+                    <input type="tel" id="phoneNumber" required><br>
+                    Address:<br>
+                    <input type="text" id="address" required><br>
+                    Student type:<br>
+                    <select id="studentType" required>
+                        <option value="Undergraduate" selected>Undergraduate</option>
+                        <option value="Masters">Masters</option>
+                        <option value="Doctorate">Doctorate</option>
+                        <option value="Post-Doctorate">Post-Doctorate</option>
+                    </select><br>
+                    Semester: <br>
+                    <input type="number" id="semester" required><br>
+                    GPA: <br>
+                    <input type="number" id="gpa" step="0.01" required><br><br>
+                    <input type="submit" value="Update"><br><br>
+            </div>
+        </form>
+    </div>
+    <div id = "students">
+    <div>
+</head>
+
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.2/axios.min.js" integrity="sha256-T/f7Sju1ZfNNfBh7skWn0idlCBcI3RwdLSS4/I7NQKQ=" crossorigin="anonymous"></script>
+    <script>
+        $(document).ready(()=>{
+            $('#searchStudent').click((e)=>{
+                var studentId = $('#studentId').val();
+                if(studentId){
+                    callSearchStudentApi(studentId).then(function(response){
+                        if(response.status!=200){
+                            var errors = "<b>An error has occured</b><br>errors:<br>";
+                            if(response.data.error && response.data.error!=undefined){
+                                    response.data.error.forEach(err=>{
+                                    errors+=err.value+" : "+err.msg;
+                                    errors+="<br>";
+                                });
+                            }               
+                            $('#students').html(errors);   
+                        }
+                        else{
+                            if(response.data.student.hasOwnProperty('studentId')){
+                                console.log(response.data);
+                                var std = response.data.student;
+                                callSearchDepartmentsApi(std.departmentName).then(function(resp){
+                                    if(resp.status==200){
+                                        if(resp.data.department.length>0){
+                                            $('#departmentId').val(resp.data.department[0].departmentId);
+                                        }
+                                    }
+                                    $('#firstName').val(std.firstName);
+                                    $('#lastName').val(std.lastName);
+                                    $('#dateOfBirth').val(std.dateOfBirth);
+                                    $('#phoneNumber').val(std.phoneNumber);
+                                    $('#address').val(std.address);
+                                    $('#studentType').val(std.studentType);
+                                    $('#semester').val(std.semester);
+                                    $('#gpa').val(std.gpa);
+                                    
+                                    $('#students').html("");
+                                    $('#updateData').show();
+                                });       
+                            }
+                            else{
+                                $('#students').html("No student record <br>");
+                                $('#updateData').hide();
+                            }
+                        }
+                    })
+                }
+                else{
+                    $('#students').html("Student ID required<br>");
+                    $('#updateData').hide();
+                }
+                
+            });
+
+            $('#form').submit((e)=>{
+                e.preventDefault();
+                var studentObj = {
+                    'departmentId' : $('#departmentId').val(),
+                    'firstName' : $('#firstName').val(),
+                    'lastName' : $('#lastName').val(),
+                    'dateOfBirth' : $('#dateOfBirth').val(),
+                    'phoneNumber' : $('#phoneNumber').val(),
+                    'address' : $('#address').val(),
+                    'studentType' : $('#studentType').val(),
+                    'semester' : $('#semester').val(),
+                    'gpa' : $('#gpa').val()
+                };
+                callUpdateStudentApi($('#studentId').val(),studentObj).then(function(response){
+                    if(response.status!=200){
+                        if((typeof response.data.error)=="string"){
+                            $('#students').html("<b>An error has occured</b> <br>");
+                            $('#students').append(response.data.error+"<br>");
+                        }
+                        else if(response.data.error && response.data.error!=undefined){
+                            var errors = "<b>An error has occured</b><br>errors:<br>";
+                            response.data.error.forEach(err=>{
+                                errors+=err.msg+" : "+err.value;
+                                errors+="<br>";
+                            });
+                            $('#students').html(errors);
+                        }
+                        else{
+                            $('#students').html("<b>An error has occured</b><br>");
+                        }
+                    }
+                    else{
+                        $('#students').html("<b>"+response.data.message+"</b><br>");
+                        $('#updateData').hide();
+                    }
+                })
+            });
+        });
+        function callSearchStudentApi(val){
+            return new Promise(function(resolve,reject){
+                axios.get('http://64.225.24.123:3000/api/v1/students/'+val)
+            .then(response =>{
+                    resolve(response);
+            }).catch(error=>{
+                resolve(error.response);
+            });
+            });
+        }
+
+        function callSearchDepartmentsApi(val){
+            return new Promise(function(resolve,reject){
+                axios.get('http://64.225.24.123:3000/api/v1/departments?departmentName='+val)
+            .then(response =>{
+                    resolve(response);
+            }).catch(error=>{
+                resolve(error.response);
+            });
+            });
+        }
+
+        function callUpdateStudentApi(id,studentObj){
+            return new Promise(function(resolve,reject){
+                axios.put('http://64.225.24.123:3000/api/v1/students/'+id,studentObj)
+            .then(response =>{
+                    resolve(response);
+            }).catch(error=>{
+                resolve(error.response);
+            });
+            })
+        }
+    </script>
+</body>
+</html>

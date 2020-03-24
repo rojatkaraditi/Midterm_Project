@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en" style="height: 100%; margin: 0; padding: 0;">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body style="height: 100%; margin: 0; padding: 0;">
+        <nav style="float: left;background-color: beige; margin-right: 2%; height: 100%; padding: 1%;">
+                <a href="index.html">Home</a><br><br>
+                <a href="searchStudents.html">Search Students</a><br><br>
+                <a href="searchStudentCourses.html">Search Student Courses</a><br><br>
+                <a href="createStudent.html">Add Student</a><br><br>
+                <a href="createStudentCourses.html">Add Student Course</a><br><br>
+                <a href="updateStudent.html">Update Student</a><br><br>
+                <a href="updateStudentGrade.html">Update Student Grade</a><br><br>
+                <a href="removeStudent.html">Remove Student</a><br><br>
+                <a href="removeStudentCourse.html">Remove Student course</a><br><br>
+                <a href="searchProfessors.html">Search Professors</a><br><br>
+                <a href="searchProfessorCourses.html">Search Professor Courses</a><br><br>
+                <a href="searchDepartments.html">Search Departments</a><br><br>
+                <a href="searchCourses.html">Search Courses</a><br><br>
+        </nav>
+    <h1>Update Student Course Grade</h1>
+    <form id="form" action="">
+        Student ID:<br>
+        <input type="number" id="studentId" required><br><br>
+        Course ID:<br>
+        <input type="number" id="courseId" required><br><br>
+        <button type="button" id="searchCourse">Search student course</button><br><br>
+        <div id="updateData" hidden>
+            Grade:<br>
+            <input type="text" id="grade" required><br><br>
+            <input type="submit" value="Update"><br><br>
+        </div>
+    </form>
+    <div id = "students">
+    <div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.2/axios.min.js" integrity="sha256-T/f7Sju1ZfNNfBh7skWn0idlCBcI3RwdLSS4/I7NQKQ=" crossorigin="anonymous"></script>
+    <script>
+        $(document).ready(()=>{
+            $('#searchCourse').click((e)=>{
+                var studentId = $('#studentId').val();
+                var courseId = $('#courseId').val();
+                if(studentId && courseId){
+                    callSearchStudentCoursesApi(studentId).then(function(response){
+                    if(response.status!=200){
+                        var errors = "<b>An error has occured</b><br>errors:<br>";
+                            if(response.data.error && response.data.error!=undefined){
+                                    response.data.error.forEach(err=>{
+                                    errors+=err.value+" : "+err.msg;
+                                    errors+="<br>";
+                                });
+                            }               
+                            $('#students').html(errors); 
+                    }
+                    else{
+                        var studentCourses = response.data.StudentCourses;
+                        if(studentCourses && studentCourses.hasOwnProperty('courses')){
+                            var courses = studentCourses.courses;
+                            var isCoursePresent = false;
+                            var grade = "";
+                            if(courses && courses.length>0){
+                                courses.forEach(course=>{
+                                    if(courseId==course.courseId){
+                                        isCoursePresent = true;
+                                        grade = course.grade;
+                                    }
+                                });
+                                if(isCoursePresent){
+                                    $('#grade').val(grade);
+                                    $('#students').html("");
+                                    $('#updateData').show();
+                                }
+                                else{
+                                    $('#students').html("Student courses not present<br>");
+                                    $('#updateData').hide();
+                                }
+                            }
+                            else{
+                                $('#students').html("Student courses not present<br>");
+                                $('#updateData').hide();
+                            }
+                        }
+                        else{
+                            $('#students').html("Student courses not present<br>");
+                            $('#updateData').hide();
+                        }
+                    }
+                });
+                }else{
+                    $('#students').html("Student ID and course ID required<br>");
+                    $('#updateData').hide();
+                }
+            });
+
+            $('#form').submit((e)=>{
+                e.preventDefault();
+                var gradeObj = {
+                    'grade':$('#grade').val()
+                }
+                callUpdateStudentCourseGradeApi($('#studentId').val(),$('#courseId').val(),gradeObj).then(function(response){
+                    if(response.status!=200){
+                        if((typeof response.data.error)=="string"){
+                            $('#students').html("<b>An error has occured</b> <br>");
+                            $('#students').append(response.data.error+"<br>");
+                        }
+                        else if(response.data.error && response.data.error!=undefined){
+                            var errors = "<b>An error has occured</b><br>errors:<br>";
+                            response.data.error.forEach(err=>{
+                                errors+=err.msg+" : "+err.value;
+                                errors+="<br>";
+                            });
+                            $('#students').html(errors);
+                        }
+                        else{
+                            $('#students').html("<b>An error has occured</b><br>");
+                        }
+                    }
+                    else{
+                        $('#students').html("<b>"+response.data.message+"</b><br>");
+                        $('#updateData').hide();
+                    }
+                });
+            });
+        });
+
+        function callSearchStudentCoursesApi(val){
+            return new Promise(function(resolve,reject){
+                axios.get('http://64.225.24.123:3000/api/v1/students/'+val+"/courses")
+            .then(response =>{
+                    resolve(response);
+            }).catch(error=>{
+                resolve(error.response);
+            });
+            });
+        }
+
+        function callUpdateStudentCourseGradeApi(val1,val2,gradeObj){
+            return new Promise(function(resolve,reject){
+                axios.patch('http://64.225.24.123:3000/api/v1/students/'+val1+"/courses/"+val2,gradeObj)
+            .then(response =>{
+                    resolve(response);
+            }).catch(error=>{
+                resolve(error.response);
+            });
+            });
+        }
+    </script>
+</body>
+</html>

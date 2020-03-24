@@ -1,0 +1,848 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "version": "1.0.0",
+        "title": "Institute Node.js application",
+        "description": "Application to access institute data"
+    },
+  "host": "64.225.24.123:3000",
+  "basePath": "/api/v1",
+  "tags": [ 
+      {
+        "name": "Student Administrator",
+        "description": "API for student administrators in the system"
+      }
+  ],
+  "schemes": [
+    "http"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/students":{
+        "get":{
+            "description":"Search students",
+            "parameters":[
+                {
+                    "name": "id",
+                    "in": "query",
+                    "required": false,
+                    "description": "Student ID",
+                    "type": "integer"
+                },
+                {
+                    "name": "departmentId",
+                    "in": "query",
+                    "required": false,
+                    "description": "Department ID",
+                    "type": "integer"
+                  },
+                  {
+                    "name": "firstName",
+                    "in": "query",
+                    "required": false,
+                    "description": "First name of student",
+                    "type": "string"
+                  },
+                  {
+                    "name": "lastName",
+                    "in": "query",
+                    "required": false,
+                    "description": "Last name of student",
+                    "type": "string"
+                  },
+                  {
+                      "name": "dateOfBirth",
+                      "in": "query",
+                    "required": false,
+                      "description": "Date of Birth of student",
+                      "type": "string",
+                      "format":"date"
+                    },
+                    {
+                      "name": "phoneNumber",
+                      "in": "query",
+                      "required": false,
+                      "description": "Phone number of student",
+                      "type": "string"
+                    },
+                    {
+                      "name": "address",
+                      "in": "query",
+                      "required": false,
+                      "description": "Address of student",
+                      "type": "string"
+                    },
+                    {
+                      "name": "studentType",
+                      "in": "query",
+                      "required": false,
+                      "description": "Type of student",
+                      "type": "string"
+                    },
+                    {
+                      "name": "semester",
+                      "in": "query",
+                      "required": false,
+                      "description": "Current Semester of student",
+                      "type": "integer"
+                    },
+                    {
+                      "name": "gpa",
+                      "in": "query",
+                      "required": false,
+                      "description": "GPA of student",
+                      "type": "number"
+                    }
+            ],
+            "tags": [
+                "Student Administrator"
+            ],
+            "summary" : "Search students",
+            "responses":{
+                "200":{
+                    "description" : "Student is found",
+                    "schema": {
+                        "$ref": "#/definitions/StudentsGroup"
+                      }
+                },
+                "400":{
+                    "description" : "Invalid Parameters"
+                },
+                "500":{
+                    "description" : "SQL error occured in query"
+                }
+            }
+          },
+          "post":{
+            "description":"Create new student",
+            "parameters": [
+                {
+                  "name": "student",
+                  "in": "body",
+                  "required": true,
+                  "description": "Student with values",
+                  "schema": {
+                    "$ref": "#/definitions/Students"
+                  }
+                }
+
+            ],
+            "tags": [
+                "Student Administrator"
+            ],
+
+            "summary" : "Create new student",
+            "responses":{
+                "200":{
+                    "description" : "Student updated"
+                },
+                "400":{
+                    "description" : "Invalid Parameters"
+                },
+                "500":{
+                    "description" : "SQL error occured in query"
+                }
+            }
+          }
+      },
+      "/students/{id}": {
+        "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "description": "ID of student",
+              "type": "integer"
+            }
+        ],
+          "get":{
+            "description":"Get student with given id",
+            "tags": [
+                "Student Administrator"
+            ],
+            "summary" : "Get student with given id",
+            "responses":{
+                "200":{
+                    "description" : "Student is found",
+                    "schema": {
+                      "$ref": "#/definitions/StudentObject"
+                    }
+                },
+                "400":{
+                    "description" : "Invalid Parameters"
+                },
+                "500":{
+                    "description" : "SQL error occured in query"
+                }
+            }
+          },
+          "delete":{
+            "description":"Delete student with id",
+            "tags": [
+                "Student Administrator"
+            ],
+            "summary" : "Delete student with id",
+            "responses":{
+                "200":{
+                    "description" : "Student is deleted"
+                },
+                "400":{
+                    "description" : "Invalid Parameters"
+                },
+                "500":{
+                    "description" : "SQL error occured in query"
+                }
+            }
+          },
+          "put":{
+            "description":"Update student",
+            "parameters": [
+                {
+                  "name": "student",
+                  "in": "body",
+                  "required": true,
+                  "description": "Student with new values",
+                  "schema": {
+                    "$ref": "#/definitions/Students"
+                  }
+                }
+
+            ],
+            "tags": [
+                "Student Administrator"
+            ],
+
+            "summary" : "Update student record",
+            "responses":{
+                "200":{
+                    "description" : "Student updated"
+                },
+                "400":{
+                    "description" : "Invalid Parameters"
+                },
+                "500":{
+                    "description" : "SQL error occured in query"
+                }
+            }
+          }
+      },
+      "/students/{id}/courses":{
+        "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "description": "ID of student",
+              "type": "integer"
+            }
+        ],
+        "get":{
+            "description":"Get student courses",
+            "tags": [
+                "Student Administrator"
+            ],
+            "summary" : "Get courses for student with id",
+            "responses":{
+                "200":{
+                    "description" : "Student is found",
+                    "schema":{
+                      "$ref":"#/definitions/Students_CoursesWithName_Group"
+                    }
+                },
+                "400":{
+                    "description" : "Invalid Parameters"
+                },
+                "500":{
+                    "description" : "SQL error occured in query"
+                }
+            }
+          },
+          "post":{
+            "description":"Create Student courses",
+            "parameters": [
+                {
+                  "name": "student courses",
+                  "in": "body",
+                  "required": true,
+                  "description": "Course values for student",
+                  "schema": {
+                    "$ref": "#/definitions/StudentCourses"
+                  }
+                }
+
+            ],
+            "tags": [
+                "Student Administrator"
+            ],
+
+            "summary" : "Create courses for student",
+            "responses":{
+                "200":{
+                    "description" : "Student course created"
+                },
+                "400":{
+                    "description" : "Invalid Parameters"
+                      },
+                "500":{
+                    "description" : "SQL error occured in query"
+                }
+              }
+          }
+      },
+      "/students/{studentId}/courses/{courseId}":{
+        "parameters": [
+          {
+            "name": "studentId",
+            "in": "path",
+            "required": true,
+            "description": "ID of student",
+            "type": "integer"
+          },
+          {
+            "name": "courseId",
+            "in": "path",
+            "required": true,
+            "description": "ID of course",
+            "type": "integer"
+          }
+      ],
+      "patch":{
+        "description":"Update student grade",
+        "parameters": [
+            {
+              "name": "Student Course Grade",
+              "in": "body",
+              "required": true,
+              "description": "Grade of student course",
+              "schema": {
+                "$ref": "#/definitions/StudentGrade"
+              }
+            }
+
+        ],
+        "tags": [
+            "Student Administrator"
+        ],
+
+        "summary" : "Update student grade",
+        "responses":{
+            "200":{
+                "description" : "Student grade updated"
+            },
+            "400":{
+                "description" : "Invalid Parameters"
+                  },
+            "500":{
+                "description" : "SQL error occured in query"
+            }
+          }
+      },
+      "delete":{
+        "description":"Delete student course",
+            "tags": [
+                "Student Administrator"
+            ],
+            "summary" : "Delete student course",
+            "responses":{
+                "200":{
+                    "description" : "Student course is deleted"
+                },
+                "400":{
+                    "description" : "Invalid Parameters"
+                },
+                "500":{
+                    "description" : "SQL error occured in query"
+                }
+            }
+      }
+    },
+    "/professors":{
+      "get":{
+        "description":"Search professors",
+            "parameters":[
+                {
+                    "name": "id",
+                    "in": "query",
+                    "required": false,
+                    "description": "Professor ID",
+                    "type": "integer"
+                },
+                {
+                    "name": "departmentId",
+                    "in": "query",
+                    "required": false,
+                    "description": "Department ID",
+                    "type": "integer"
+                  },
+                  {
+                    "name": "firstName",
+                    "in": "query",
+                    "required": false,
+                    "description": "First name of student",
+                    "type": "string"
+                  },
+                  {
+                    "name": "lastName",
+                    "in": "query",
+                    "required": false,
+                    "description": "Last name of student",
+                    "type": "string"
+                  },
+                  {
+                      "name": "dateOfBirth",
+                      "in": "query",
+                      "required": false,
+                      "description": "Date of Birth of student",
+                      "type": "string",
+                      "format":"date"
+                    },
+                    {
+                      "name": "phoneNumber",
+                      "in": "query",
+                      "required": false,
+                      "description": "Phone number of student",
+                      "type": "string"
+                    },
+                    {
+                      "name": "address",
+                      "in": "query",
+                      "required": false,
+                      "description": "Address of student",
+                      "type": "string"
+                    }
+            ],
+            "tags": [
+                "Student Administrator"
+            ],
+            "summary" : "Search professors",
+            "responses":{
+                "200":{
+                    "description" : "Professors is found",
+                    "schema": {
+                      "$ref": "#/definitions/ProfessorsGroup"
+                    }
+                },
+                "400":{
+                    "description" : "Invalid Parameters"
+                },
+                "500":{
+                    "description" : "SQL error occured in query"
+                }
+              }
+           }
+        },
+        "/professors/{id}/courses":{
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "description": "ID of professor",
+              "type": "integer"
+            }
+        ],
+        "get":{
+          "description":"Get professor courses",
+            "tags": [
+                "Student Administrator"
+            ],
+            "summary" : "Get courses conducted by professor with id",
+            "responses":{
+                "200":{
+                    "description" : "Professor courses found",
+                    "schema":{
+                      "$ref":"#/definitions/ProfessorsCourses"
+                    }
+                },
+                "400":{
+                    "description" : "Invalid Parameters"
+                },
+                "500":{
+                    "description" : "SQL error occured in query"
+                }
+            }
+          }
+        },
+        "/departments":{
+          "get":{
+            "parameters": [
+              {
+                "name": "id",
+                "in": "query",
+                "required": false,
+                "description": "ID of department",
+                "type": "integer"
+              },
+              {
+                "name": "departmentName",
+                "in": "query",
+                "required": false,
+                "description": "Name of department",
+                "type": "string"
+              }
+          ],
+          "description":"Search Departments",
+            "tags": [
+                "Student Administrator"
+            ],
+            "summary" : "Search Departments",
+            "responses":{
+                "200":{
+                    "description" : "Departments found",
+                    "schema": {
+                      "$ref": "#/definitions/DepartmentsGroup"
+                    }
+                },
+                "400":{
+                    "description" : "Invalid Parameters"
+                },
+                "500":{
+                    "description" : "SQL error occured in query"
+                }
+            }
+          }
+        },
+        "/courses":{
+          "get":{
+            "parameters": [
+              {
+                "name": "id",
+                "in": "query",
+                "required": false,
+                "description": "ID of course",
+                "type": "integer"
+              },
+              {
+                "name": "courseName",
+                "in": "query",
+                "required": false,
+                "description": "Name of course",
+                "type": "string"
+              }
+          ],
+          "description":"Search Courses",
+            "tags": [
+                "Student Administrator"
+            ],
+            "summary" : "Search Courses",
+            "responses":{
+                "200":{
+                    "description" : "Courses found",
+                    "schema": {
+                      "$ref": "#/definitions/CoursesGroup"
+                    }
+                },
+                "400":{
+                    "description" : "Invalid Parameters"
+                },
+                "500":{
+                    "description" : "SQL error occured in query"
+                }
+            }
+          }
+        }
+  },
+  "definitions":{
+      "Students":{
+          "required": [
+            "departmentId",
+            "firstName",
+            "lastName",
+            "dateOfBirth",
+            "phoneNumber",
+            "address",
+            "studentType",
+            "semester",
+            "gpa"
+          ],
+          "properties":{
+              "departmentId":{
+                  "type":"integer"
+              },
+              "firstName":{
+                  "type":"string"
+              },
+              "lastName":{
+                  "type":"string"
+              },
+              "dateOfBirth":{
+                "type":"string",
+                "format":"date"
+              },
+              "phoneNumber":{
+                "type":"string"
+              },
+              "address":{
+                "type":"string"
+              },
+              "studentType":{
+                "type":"string"
+              },
+              "semester":{
+                "type":"integer"
+              },
+              "gpa":{
+                "type":"number"
+              }
+          }
+      },
+      "StudentsWithDepartmentName":{
+        "required": [
+          "studentId",
+          "departmentName",
+          "firstName",
+          "lastName",
+          "dateOfBirth",
+          "phoneNumber",
+          "address",
+          "studentType",
+          "semester",
+          "gpa"
+        ],
+        "properties":{
+            "studentId":{
+              "type":"integer"
+            },
+            "departmentName":{
+                "type":"string"
+            },
+            "firstName":{
+                "type":"string"
+            },
+            "lastName":{
+                "type":"string"
+            },
+            "dateOfBirth":{
+              "type":"string",
+              "format":"date"
+            },
+            "phoneNumber":{
+              "type":"string"
+            },
+            "address":{
+              "type":"string"
+            },
+            "studentType":{
+              "type":"string"
+            },
+            "semester":{
+              "type":"integer"
+            },
+            "gpa":{
+              "type":"number"
+            }
+        }
+    },
+      "StudentGrade":{
+          "required":[
+              "grade"
+          ],
+          "properties":{
+              "grade":{
+                  "type":"string"
+              }
+          }
+      },
+      "Professors":{
+          "required":[
+            "professorId",
+            "departmentName",
+            "firstName",
+            "lastName",
+            "dateOfBirth",
+            "phoneNumber",
+            "address"
+          ],
+          "properties":{
+            "professorId":{
+                "type":"integer"
+            },
+            "departmentName":{
+                "type":"string"
+            },
+            "firstName":{
+                "type":"string"
+            },
+            "lastName":{
+                "type":"string"
+            },
+            "dateOfBirth":{
+              "type":"string",
+              "format":"date"
+            },
+            "phoneNumber":{
+              "type":"string"
+            },
+            "address":{
+              "type":"string"
+            }
+          }
+      },
+      "Departments":{
+          "required":[
+              "departmentId",
+              "departmentName"
+          ],
+          "properties":{
+            "departmentId":{
+                "type":"integer"
+            },
+            "departmentName":{
+                "type":"string"
+            }
+          }
+      },
+      "Courses":{
+          "required":[
+              "courseId",
+              "courseName"
+          ],
+          "properties":{
+              "courseId":{
+                  "type":"integer"
+              },
+              "courseName":{
+                  "type":"string"
+              }
+          }
+      },
+      "Students_Courses":{
+          "required":[
+              "courseId",
+              "professorId",
+              "grade"
+          ],
+          "properties":{
+            "courseId":{
+                "type":"integer"
+            },
+            "professorId":{
+                "type":"integer"
+            },
+            "grade":{
+                "type":"string"
+            }
+          }
+      },
+      "StudentCourses":{
+        "required":[
+            "courses"
+        ],
+        "properties":{
+            "courses":
+              {
+                "type": "array",
+                "items":{
+                  "$ref": "#/definitions/Students_Courses" 
+                }
+              }
+        }
+  },
+      "StudentsGroup":{
+        "properties":{
+          "students":{
+            "type":"array",
+            "items":{
+              "$ref": "#/definitions/StudentsWithDepartmentName"
+            }
+          } 
+        }
+      },
+      "StudentObject":{
+        "properties":{
+          "student":{
+            "type":"object",
+            "$ref": "#/definitions/StudentsWithDepartmentName"
+          }
+          
+        }
+      },
+      "ProfessorsGroup":{
+        "properties":{
+          "professors":{
+            "type":"array",
+            "items":{
+              "$ref": "#/definitions/Professors"
+            }
+          }
+        }
+      },
+      "DepartmentsGroup":{
+        "properties":{
+          "department":{
+            "type":"array",
+            "items":{
+              "$ref": "#/definitions/Departments"
+            }
+          }
+        }
+      },
+      "CoursesGroup":{
+        "properties":{
+          "courses":{
+            "type":"array",
+              "items":{
+                "$ref": "#/definitions/Courses"
+            }
+          }
+         
+        }
+      },
+      "CoursesWithNames":{
+        "properties":{
+          "courseId":{
+            "type":"integer"
+          },
+          "courseName":{
+            "type":"string"
+          },
+          "grade":{
+            "type":"string"
+          },
+          "professorName":{
+            "type":"string"
+          }
+        }
+      },
+      "Student_CoursesWithName":{
+        "properties":{
+          "studentId":{
+            "type":"integer"
+          },
+          "studentName":{
+            "type":"string"
+          },
+          "courses":{
+            "type":"array",
+            "items":{
+              "$ref": "#/definitions/CoursesWithNames"
+            }
+          }
+        }
+      },
+      "Students_CoursesWithName_Group":{
+        "properties":{
+          "StudentCourses":{
+            "type":"object",
+            "$ref": "#/definitions/Student_CoursesWithName"
+          }
+        }
+      },
+      "ProfessorsCourses":{
+        "properties":{
+          "courses":{
+            "type":"array",
+            "items":{
+              "$ref": "#/definitions/Courses"
+            }
+          }
+        }
+      }
+
+  }
+}
