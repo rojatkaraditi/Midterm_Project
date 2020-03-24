@@ -97,7 +97,7 @@
 
         function callApi(studentObj){
             return new Promise(function(resolve,reject){
-                axios.post('http://localhost:3000/api/v1/students',studentObj)
+                axios.post('http://64.225.24.123:3000/api/v1/students',studentObj)
             .then(response =>{
                     resolve(response);
             }).catch(error=>{

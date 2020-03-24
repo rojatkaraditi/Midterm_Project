@@ -148,7 +148,7 @@
 
         function callApi(id,coursesObj){
             return new Promise(function(resolve,reject){
-                axios.post('http://localhost:3000/api/v1/students/'+id+"/courses",coursesObj)
+                axios.post('http://64.225.24.123:3000/api/v1/students/'+id+"/courses",coursesObj)
             .then(response =>{
                     resolve(response);
             }).catch(error=>{
