@@ -888,54 +888,54 @@ exports.getLinks=()=>{
     var links=[
         {
             "method" : "get",
-            "href" : "http://localhost:3000/api/v1/students"
+            "href" : "http://64.225.24.123:3000/api/v1/students"
         },
         {
             "method" : "get",
-            "href" : "http://localhost:3000/api/v1/students/1"
+            "href" : "http://64.225.24.123:3000/api/v1/students/1"
         },
         {
             "method" : "get",
-            "href" : "http://localhost:3000/api/v1/students/1/courses"
+            "href" : "http://64.225.24.123:3000/api/v1/students/1/courses"
         },
         {
             "method" : "post",
-            "href" : "http://localhost:3000/api/v1/students"
+            "href" : "http://64.225.24.123:3000/api/v1/students"
         },
         {
             "method" : "post",
-            "href" : "http://localhost:3000/api/v1/students/1/courses"
+            "href" : "http://64.225.24.123:3000/api/v1/students/1/courses"
         },
         {
             "method" : "put",
-            "href" : "http://localhost:3000/api/v1/students/1"
+            "href" : "http://64.225.24.123:3000/api/v1/students/1"
         },
         {
             "method" : "patch",
-            "href" : "http://localhost:3000/api/v1/students/1/courses/1"
+            "href" : "http://64.225.24.123:3000/api/v1/students/1/courses/1"
         },{
             "method" : "delete",
-            "href" : "http://localhost:3000/api/v1/students/1"
+            "href" : "http://64.225.24.123:3000/api/v1/students/1"
         },
         {
             "method" : "delete",
-            "href" : "http://localhost:3000/api/v1/students/1/courses/1"
+            "href" : "http://64.225.24.123:3000/api/v1/students/1/courses/1"
         },
         {
             "method" : "get",
-            "href" : "http://localhost:3000/api/v1/professors"
+            "href" : "http://64.225.24.123:3000/api/v1/professors"
         },
         {
             "method" : "get",
-            "href" : "http://localhost:3000/api/v1/professors/1/courses"
+            "href" : "http://64.225.24.123:3000/api/v1/professors/1/courses"
         },
         {
             "method" : "get",
-            "href" : "http://localhost:3000/api/v1/departments"
+            "href" : "http://64.225.24.123:3000/api/v1/departments"
         },
         {
             "method" : "get",
-            "href" : "http://localhost:3000/api/v1/courses"
+            "href" : "http://64.225.24.123:3000/api/v1/courses"
         }
     ];
     return links;
