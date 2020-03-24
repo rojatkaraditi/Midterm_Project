@@ -1,3 +1,4 @@
+//Object to handle data of students
 class Student{
     constructor(student){
         this.studentId = student.s_id;

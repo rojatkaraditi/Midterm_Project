@@ -99,7 +99,7 @@ exports.findStudents= (request,response)=>{
         var errors = request.validationErrors();
 
         if(!errors){
-            //sql query
+            //sql query to search students by search criteria
             sql.query(sqlStatement,(err,res)=>{
                 if(err){
                     //Data Transformation
@@ -107,7 +107,7 @@ exports.findStudents= (request,response)=>{
                         'error': err,
                         'links':this.getLinks()
                     }
-                    //response
+                    //send response
                     response.status(500).json(result);
                 }
                 else if(res.length>0){
@@ -120,7 +120,7 @@ exports.findStudents= (request,response)=>{
                         "students": studentsObjects,
                         "links": this.getLinks()
                     }
-                    //response
+                    //send response
                     response.status(200).json(result);
                 }
                 else{
@@ -129,7 +129,7 @@ exports.findStudents= (request,response)=>{
                         "students":[],
                         "links": this.getLinks()
                     }
-                    //response
+                    //send response
                     response.status(200).json(result);
                 }
             });
@@ -140,7 +140,7 @@ exports.findStudents= (request,response)=>{
                 'error': errors,
                 'links':this.getLinks()
             }
-            //response
+            //send response
             response.status(400).json(result);
         }
 }
@@ -153,7 +153,7 @@ exports.findStudent=(request,response)=>{
     var errors = request.validationErrors();
 
     if(!errors){
-        //sql query
+        //sql query for fetching student data by student id
         var student_id = request.params.id;
         sql.query('select s_id,d.d_name as department_name,first_name,last_name,date_of_birth,phone_number,address,student_type,semester,gpa from students s join departments d using (d_id) where s_id='+student_id,(err,res)=>{
             if(err){
@@ -162,7 +162,7 @@ exports.findStudent=(request,response)=>{
                     'error': err,
                     'links':this.getLinks()
                 }
-                //response
+                //send response
                 response.status(500).json(result);
             }
             else if(res.length>0){
@@ -172,7 +172,7 @@ exports.findStudent=(request,response)=>{
                     "student":std,
                     "links": this.getLinks()
                 }
-                //response
+                //send response
                 response.status(200).json(result);
             }
             else{
@@ -181,7 +181,7 @@ exports.findStudent=(request,response)=>{
                     "student":{},
                     "links": this.getLinks()
                 }
-                //response
+                //rsend esponse
                 response.status(200).json(result);
             }
         });
@@ -192,71 +192,89 @@ exports.findStudent=(request,response)=>{
             'error': errors,
             'links':this.getLinks()
         }
-        //response
+        //send response
         response.status(400).json(result);
     }
 };
 
+//find courses taken by a student
 exports.findStudentCourses=(request,response)=>{
+    //input sanitazing and validation
     request.checkParams('id','Invalid student id').isInt().trim().escape();
 
     var errors = request.validationErrors();
 
     if(!errors){
         var student_id = request.params.id;
+        //sql query to get student courses
         sql.query('select sc.c_id,c.c_name as Course, sc.grade as Grade, sc.p_id, concat(p.first_name,\' \',p.last_name) as Professor from students_courses sc join courses c using (c_id) join professors p using (p_id) where sc.s_id='+student_id,(err,res)=>{
             if(err){
+                //data transformation
                 var result={
                     "error": err,
                     "links":this.getLinks()
                 }
+                //send response
                 response.status(500).json(result);
             }
             else if(res.length>0){
+                //sql query to fetch student information
                 sql.query('select s_id, concat(first_name,\' \',last_name) as Student_Name from students where s_id='+student_id,(error,resp)=>{
                     if(error){
+                        //data transformation
                         var result={
                             "error": error,
                             "links":this.getLinks()
                         }
+                        //send response
                         response.status(500).json(result);
                     }
                     else if(resp.length>0){
+                        //data transformation
                         var studentCourses = new StudentCoursesObject(resp[0],res);
                         var result={
                             "StudentCourses": studentCourses,
                             "links":this.getLinks()
                         }
+                        //send response
                         response.status(200).json(result);
                     }
                     else{
+                        //data transformation 
                         var result={
                             "StudentCourses": {},
                             "links":this.getLinks()
                         }
+                        //send response
                         response.status(200).json(result);
                     }
                 });
             }
             else{
+                //data transformation
                 var result={
                     "StudentCourses": {},
                     "links":this.getLinks()
                 }
+                //send result
                 response.status(200).json(result);
             }
         });
     }
     else{
+        //data transformation
         var result={
             "error": errors,
             "links":this.getLinks()
         }
+        //send result
         response.status(400).json(result);
     }
 };
 
+//create a new student
 exports.createStudent=(request,response)=>{
+    //input sanitazing and validation
     request.checkBody('studentId','Student ID should not be specified').isEmpty();
     request.checkBody('departmentId','departmentId is required').notEmpty().trim().escape();
     request.checkBody('departmentId','Invalid departmentId').isInt();
@@ -280,6 +298,7 @@ exports.createStudent=(request,response)=>{
 
     if(!errors){
         var that = this;
+        //input validation
         this.isDepartmentIdValid(request.body.departmentId).then(function(res){
             if(res){
                 var requestBody = request.body;
@@ -294,44 +313,54 @@ exports.createStudent=(request,response)=>{
                     'semester' : requestBody.semester,
                     'gpa' : requestBody.gpa
                 };
-        
+                //sql query to create a new student
                 sql.query('insert into students set ?',student,(err,res)=>{
                     if(err){
+                        //data transformation
                         var result = {
                             "error":err,
                             "links":that.getLinks()
                         }
+                        //send response
                         response.status(500).json(result);
                     }
                     else{
+                        //data transformation
                         var result = {
                             'message': 'Student successfully created',
                             "links" : that.getLinks()
                         }
+                        //send response
                         response.status(200).json(result);
                     }
                 });
             }
             else{
+                //data transformation
                 var result = {
                     "error":'Department ID not present in records',
                     "links":that.getLinks()
                 }
+                //send response
                 response.status(400).json(result);
             }
         });
     }
     else{
+        //data transformation
         var result = {
             "error":errors,
             "links":this.getLinks()
         }
+        //send response
         response.status(400).json(result);
     }
 };
 
+//bulk create student courses
 exports.createStudentCourses=(request,response)=>{
 
+    //input sanitization and valisation
     request.checkParams('id',"Invalid studentId").isInt().trim().escape();  
     request.checkBody('courses','courses array is required').notEmpty().trim().escape();
     request.checkBody('courses','courses should be an array').isArray();
@@ -347,25 +376,30 @@ exports.createStudentCourses=(request,response)=>{
 
     if(!errors){
         var that = this;
+        //input validation
         this.isStudentValid(request.params.id).then(function(res){
             if(res){
                 that.isStudentCourseDuplicate(request.body.courses).then(function(resl){
                     if(!resl){
                         that.isCourseValid(request.body.courses).then(function(resl){
                             if(!resl){
+                                //data transformation
                                 var result = {
                                     "error":"Some of the professor courses are not available in records",
                                     "links":that.getLinks()
                                 }
+                                //send response
                                 response.status(400).json(result);
                             }
                             else{
                                 that.isStudentCourseAlreadyPresent(request.params.id,request.body.courses).then(function(reslt){
                                     if(reslt){
+                                        //data transformation
                                         var result = {
                                             "error":"Some of the courses have already been taken by student",
                                             "links":that.getLinks()
                                         }
+                                        //send response
                                         response.status(400).json(result);
                                     }
                                     else{
@@ -377,20 +411,24 @@ exports.createStudentCourses=(request,response)=>{
                                         courses.forEach(course => {0
                                             studentCourses.push(new Array(student_id,course.courseId,course.professorId,course.grade.trim()));
                                         });
-                                    
+                                        //sql query to create the student courses
                                         sql.query('INSERT INTO students_courses VALUES ?',[studentCourses],(err,res)=>{
                                             if(err){
+                                                //data transformation
                                                 var result = {
                                                     "error":err,
                                                     "links":that.getLinks()
                                                 }
+                                                //send response
                                                 response.status(500).json(result);
                                             }
                                             else{
+                                                //data transformation
                                                 var result = {
                                                     'message': 'Student courses successfully added',
                                                     "links":that.getLinks()
                                                 }
+                                                //send response
                                                 response.status(200).json(result);
                                             }
                                         });
@@ -400,34 +438,42 @@ exports.createStudentCourses=(request,response)=>{
                         });
                     }
                     else{
+                        //data transformation
                         var result = {
                             'message': 'Courses are repeated in the list',
                             "links":that.getLinks()
                         }
+                        //send response
                         response.status(200).json(result);
                     }
                 })
 
             }
             else{
+                //data transformation
                 var result = {
                     "error":"Student not present in records",
                     "links":that.getLinks()
                 }
+                //send response
                 response.status(400).json(result);
             }
         });
     }
     else{
+        //data transformation
         var result = {
             "error":errors,
             "links":this.getLinks()
         }
+        //send response
         response.status(400).json(result);
     }
 };
 
+//update student record
 exports.updateStudent=(request,response)=>{
+    //input sanitization and validation
     request.checkParams('id','Invalid student id').isInt().trim().escape();
 
     request.checkBody('studentId','Student ID should not be specified').isEmpty();
@@ -453,7 +499,7 @@ exports.updateStudent=(request,response)=>{
 
     if(!errors){
         var that=this;
-
+        //input validation
         this.isStudentValid(request.params.id).then(function(res){
             if(res){
                 that.isDepartmentIdValid(request.body.departmentId).then(function(resl){
@@ -471,53 +517,64 @@ exports.updateStudent=(request,response)=>{
                             'semester' : requestBody.semester,
                             'gpa' : requestBody.gpa
                         };
-                    
+                            //sql query to update student record
                             sql.query('update students set ? where s_id='+student_Id,student,(err,res)=>{
                                 if(err){
+                                    //data transformation
                                     var result = {
                                         "error":err,
                                         "links":that.getLinks()
                                     }
+                                    //send response
                                     response.status(500).json(result);
                                 }
                                 else{
+                                    //data transformation
                                     var result = {
                                         'message': 'Student successfully updated',
                                         "links":that.getLinks()
                                     }
+                                    //send response
                                     response.status(200).json(result);
                                 }
                             });
                     }
                     else{
+                        //data transformation
                         var result = {
                             "error":'departmentId not present in records',
                             "links":that.getLinks()
                         }
+                        //send response
                         response.status(400).json(result);
                     }
                 })
             }
             else{
+                //data transformation
                 var result = {
                     "error":'studentId not present in records',
                     "links":that.getLinks()
                 }
+                //send response
                 response.status(400).json(result);
             }
         });
     }
     else{
+        //data transformation
         var result = {
             "error":errors,
             "links":this.getLinks()
         }
+        //send response
         response.status(400).json(result);
     }
 };
 
+//update the grade of a student course
 exports.updateStudentCourses=(request,response)=>{
-
+    //input sanitization and validation
     request.checkParams('studentId','Invalid student id').isInt().trim().escape();
     request.checkParams('courseId','Invalid course id').isInt().trim().escape();
 
@@ -531,7 +588,7 @@ exports.updateStudentCourses=(request,response)=>{
 
     if(!errors){
         var that = this;
-
+        //input validation
         this.isStudentCourseValid(request.params.studentId,request.params.courseId).then(function(res){
             if(res){
                 var requestBody = request.body;
@@ -539,75 +596,93 @@ exports.updateStudentCourses=(request,response)=>{
                 var student_id = request.params.studentId;
             
                 var sqlQuery = "update students_courses set grade = '"+requestBody.grade+"' where s_id ="+student_id+" and c_id="+course_id;
-            
+                //sql query to update the grade of the student course
                 sql.query(sqlQuery,(err)=>{
                     if(err){
+                        //data transformation
                         var result = {
                             "error":err,
                             "links":that.getLinks()
                         }
+                        //send response
                         response.status(500).json(result);
                     }
                     else{
+                        //data transformation
                         var result = {
                             'message': 'Student course grade successfully updated',
                             "links":that.getLinks()
                         }
+                        //send response
                         response.status(200).json(result);
                     }
                 });
             }
             else{
+                //data transformation
                 var result = {
                     "error":"No such student course data exists in records",
                     "links":that.getLinks()
                 }
+                //send response
                 response.status(400).json(result);
             }
         });
     }
     else{
+        //data transformation
         var result = {
             "error":errors,
             "links":this.getLinks()
         }
+        //send response
         response.status(400).json(result);
     }
     
 };
 
+//remove a student from records
 exports.removeStudent=(request,response)=>{
+    //input sanitization and validation
     request.checkParams('id','Invalid student id').isInt().trim().escape();
 
     var errors = request.validationErrors();
     if(!errors){
         var that = this;
-
+        //input validation
         this.isStudentValid(request.params.id).then(function(res){
             if(res){
                 student_id = request.params.id;
+                //sql query to delete all student courses
                 sql.query('delete from students_courses where s_id='+student_id,(err)=>{
                     if(err){
+                        //data transformation
                         var result = {
                             "error":err,
                             "links":that.getLinks()
                         }
+                        //send response
                         response.status(500).json(result);
                     }
                     else{
+                        //sql query to delete student
                         sql.query('delete from students where s_id='+student_id,(error)=>{
                             if(error){
+                                //data transformation
                                 var result = {
                                     "error":error,
                                     "links":that.getLinks()
                                 }
+                                //send response
                                 response.status(500).json(result);
                             }
                             else{
+                                //data transformation
                                 var result = {
                                     'message': 'Student successfully deleted',
                                     "links":that.getLinks()
                                 }
+                                //send response
                                 response.status(200).json(result);
                             }
                         })
@@ -615,24 +690,30 @@ exports.removeStudent=(request,response)=>{
                 });
             }
             else{
+                //data transformation
                 var result = {
                     "error":"student with id not present in record",
                     "links":that.getLinks()
                 }
+                //send response
                 response.status(400).json(result);
             }
         });
     }
     else{
+        //data transformation
         var result = {
             "error":errors,
             "links":this.getLinks()
         }
+        //send response
         response.status(400).json(result);
     }
 };
 
+//delete a student course from records
 exports.removeStudentCourse=(request,response)=>{
+    //input sanitization and validation
     request.checkParams('studentId','Invalid student id').isInt().trim().escape();
     request.checkParams('courseId','Invalid course id').isInt().trim().escape();
 
@@ -640,46 +721,56 @@ exports.removeStudentCourse=(request,response)=>{
 
     if(!errors){
         var that = this;
-
+        //input validation
         this.isStudentCourseValid(request.params.studentId,request.params.courseId).then(function(res){
             if(res){
                 student_id = request.params.studentId;
                 course_id = request.params.courseId;
+                //sql query to delete student course
                 sql.query('delete from students_courses where s_id='+student_id+' AND c_id='+course_id,(err)=>{
                     if(err){
+                        //data transformation
                         var result = {
                             "error":err,
                             "links":that.getLinks()
                         }
+                        //send response 
                         response.status(500).json(result);
                     }
                     else{
+                        //data transformation
                         var result = {
                             'message': 'Student course successfully deleted',
                             "links":that.getLinks()
                         }
+                        //send response
                         response.status(200).json(result);
                     }
                 });
             }
             else{
+                //data transformation
                 var result = {
                     "error":"No such student course data exists in records",
                     "links":that.getLinks()
                 }
+                //send response
                 response.status(400).json(result);
             }
         });
     }
     else{
+        //data transformation
         var result = {
             "error":errors,
             "links":this.getLinks()
         }
+        //rend response
         response.status(400).json(result);
     }
 };
 
+//function to validate date format
 exports.isValidDate=(value)=>{
     if(value){
         if (!value.match(/^\d{4}-\d{2}-\d{2}$/)) return false;
@@ -693,6 +784,7 @@ exports.isValidDate=(value)=>{
     }
   }
 
+  //function to validate the student type values
   exports.isValidStudentType=(value)=>{
       if(value=="Undergraduate" || value=="Masters" || value=="Doctorate" || value=="Post-Doctorate"){
           return true;
@@ -702,6 +794,7 @@ exports.isValidDate=(value)=>{
       }
 }
 
+//function to validate the course grade values
 exports.isCourseGradeValid=(value)=>{
     if(value=="A" || value=="B" || value=="C" || value=="U" || value=="N"){
         return true;
@@ -711,6 +804,7 @@ exports.isCourseGradeValid=(value)=>{
     }
 }
 
+//function to validate if a department is present in records
 exports.isDepartmentIdValid=(value)=>{
         return new Promise(function(resolve,reject){
             sql.query('select * from departments where d_id='+value,(err,res)=>{
@@ -719,6 +813,7 @@ exports.isDepartmentIdValid=(value)=>{
         });
 }
 
+//function to validate if a student is present in records
 exports.isStudentValid=(value)=>{
     return new Promise(function(resolve,reject){
         sql.query('select * from students where s_id='+value,(err,res)=>{
@@ -727,6 +822,7 @@ exports.isStudentValid=(value)=>{
     })
 }
 
+//function to validate if a student course is present in records
 exports.isStudentCourseValid=(val1,val2)=>{
     return new Promise(function(resolve,reject){
         sql.query('select * from students_courses where s_id='+val1+" and c_id="+val2,(err,res)=>{
@@ -734,7 +830,7 @@ exports.isStudentCourseValid=(val1,val2)=>{
         })
     });
 }
-
+//functoin to validate if a course is offered by a professor
 exports.isCourseValid=(courses)=>{
     return new Promise(function(resolve,reject){
         var count=0;
@@ -752,6 +848,7 @@ exports.isCourseValid=(courses)=>{
     });
 }
 
+//function to check if a course is already taken by a student
 exports.isStudentCourseAlreadyPresent=(val,courses)=>{
     return new Promise(function(resolve,reject){
         var count=0;
@@ -769,6 +866,7 @@ exports.isStudentCourseAlreadyPresent=(val,courses)=>{
     });
 }
 
+//function to validate duplicate courses in request
 exports.isStudentCourseDuplicate=(courses)=>{
     return new Promise(function(resolve,reject){
          var count = 0;
@@ -784,6 +882,8 @@ exports.isStudentCourseDuplicate=(courses)=>{
         resolve (count>0);
     });
 }
+
+//function to return all links of the API. (HATEOAS support)
 exports.getLinks=()=>{
     var links=[
         {
@@ -804,7 +904,7 @@ exports.getLinks=()=>{
         },
         {
             "method" : "post",
-            "href" : "http://localhost:3000/api/v1/students/courses"
+            "href" : "http://localhost:3000/api/v1/students/1/courses"
         },
         {
             "method" : "put",

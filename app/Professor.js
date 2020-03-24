@@ -1,3 +1,4 @@
+//Object to handle professor data
 class Professor{
     constructor(professor){
         this.professorId=professor.p_id;

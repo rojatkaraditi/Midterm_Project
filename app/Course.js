@@ -1,3 +1,4 @@
+//Structure for course information
 class Course{
     constructor(course){
         this.courseId=course.c_id;

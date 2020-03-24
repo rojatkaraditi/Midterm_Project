@@ -3,8 +3,9 @@ const ProfessorObject = require("./Professor.js");
 const CourseObject = require('./Course.js');
 const studentController = require('./students.controller');
 
-
+//search professors according to search criteria
 exports.findProfessors=(request,response)=>{
+    //building query string and inout sanitazing and validation
     queryStr = request.query;
     var queryParam = "";
     var sqlStatement = "" ;
@@ -70,15 +71,19 @@ exports.findProfessors=(request,response)=>{
 
         var errors = request.validationErrors();
         if(!errors){
+            //sql query to search professors as per search parameters
             sql.query(sqlStatement,(err,res)=>{
                 if(err){
+                    //data transformation
                     var result = {
                         'error': err,
                         'links':studentController.getLinks()
                     }
+                    //send response
                     response.status(500).json(result);
                 }
                 else if(res.length>0){
+                    //data transformation
                     var professorObjects = [];
                     res.forEach(professor=>{
                         professorObjects.push(new ProfessorObject(professor));
@@ -87,43 +92,53 @@ exports.findProfessors=(request,response)=>{
                         "professors": professorObjects,
                         "links": studentController.getLinks()
                     }
+                    //send response
                     response.status(200).json(result);
                 }
                 else{
+                    //data transformation
                     var result = {
                         "professors":[],
                         "links": studentController.getLinks()
                     }
+                    //send response
                     response.status(200).json(result);
                 }
             });
         }
         else{
+            //date transformation
             var result = {
                 'error': errors,
                 'links':studentController.getLinks()
             }
+            //send response
             response.status(400).json(result);
         }
 };
 
+//search courses taught by professors
 exports.findProfessorCourses = (request,response) =>{
+    //input sanitazing and validation
     request.checkParams('id','Invalid professor id').isInt().trim().escape();
 
     var errors = request.validationErrors();
 
     if(!errors){
         var professor_id = request.params.id;
-
+        //sql query to search for professor courses
         sql.query('select pc.c_id,c.c_name from professors_courses pc join courses c using (c_id) where p_id='+professor_id,(err,res)=>{
             if(err){
+                //data transformation
                 var result = {
                     'error': err,
                     'links':studentController.getLinks()
                 }
+                //send response
                 response.status(500).json(result);
             }
             else if(res.length>0){
+                //data transformation
                 var courseObjects = [];
                     res.forEach(course=>{
                         courseObjects.push(new CourseObject(course));
@@ -132,22 +147,27 @@ exports.findProfessorCourses = (request,response) =>{
                         "courses": courseObjects,
                         "links": studentController.getLinks()
                     }
+                    //send response
                 response.status(200).json(result);
             }
             else{
+                //data transformation
                 var result = {
                     "courses":[],
                     "links": studentController.getLinks()
                 }
+                //send response
                 response.status(200).json(result);
             }
         });
     }
     else{
+        //data transformation
         var result = {
             'error': errors,
             'links':studentController.getLinks()
         }
+        //send response
         response.status(400).json(result);
     }
 }

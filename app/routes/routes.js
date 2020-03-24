@@ -8,6 +8,7 @@ var validator = require('validator');
 
 const route = express.Router();
 
+//middleware for express validations of input 
 route.use(expressValidator({
     customValidators: {
       isValidDate: studentController.isValidDate,

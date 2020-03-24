@@ -2,7 +2,9 @@ const sql = require("./dbconfig.js");
 const DepartmentObject = require('./Department');
 const studentController = require('./students.controller');
 
+//find departments by search criteria
 exports.findDepartments=(request,response)=>{
+    //creating query string and inout sanitization and validation
     queryStr = request.query;
     var queryParam = "";
     var sqlStatement = "" ;
@@ -25,15 +27,19 @@ exports.findDepartments=(request,response)=>{
     var errors = request.validationErrors();
 
     if(!errors){
+        //sql query to get departments according to criteria
         sql.query(sqlStatement,(err,res)=>{
             if(err){
+                //data transformation
                 var result = {
                     'error': err,
                     'links':studentController.getLinks()
                 }
+                //send response
                 response.status(500).json(result);
             }
             else if(res.length>0){
+                //data transformation
                 var departmentObjects = [];
                     res.forEach(department=>{
                         departmentObjects.push(new DepartmentObject(department));
@@ -42,22 +48,27 @@ exports.findDepartments=(request,response)=>{
                         "department": departmentObjects,
                         "links": studentController.getLinks()
                     }
+                    //send response
                 response.status(200).json(result);
             }
             else{
+                //data transformation
                 var result = {
                     "departments":[],
                     "links": studentController.getLinks()
                 }
+                //send response
                 response.status(200).json(result);
             }
         });
     }
     else{
+        //data transformation
         var result = {
             'error': errors,
             'links':studentController.getLinks()
         }
+        //send response
         response.status(400).json(result);
     }
 };
